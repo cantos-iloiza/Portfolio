@@ -1,6 +1,26 @@
 <?php
-require_once "db.php";
+session_start();
 
+require_once 'db.php';
+
+function e($str) {
+    return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+function is_assoc(array $arr) {
+    if ($arr === []) return false;
+    return array_keys($arr) !== range(0, count($arr) - 1);
+}
+
+function mailto_link($email) {
+    $email = $email ?? '';
+    return [
+        'href' => 'mailto:' . rawurlencode($email),
+        'text' => e($email)
+    ];
+}
+
+/*Portfolio content*/
 $name = "ILOIZA JHANE C. CANTOS";
 $title = "3rd Year | BS Computer Science";
 $location = "Tabangao Dao, Batangas City, Batangas";
@@ -74,13 +94,12 @@ $contact = [
     "Email" => "cantosiloizajhane@gmail.com"
 ];
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $name; ?> - Portfolio</title>
+    <title><?php echo e($name); ?> - Portfolio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -90,28 +109,31 @@ $contact = [
 <header id="home">
     <div class="container">
         <div class="header-content">
-            <img src="2X2 ID_ILOIZA.png" alt="<?php echo $name; ?>" class="profile-img">
+            <img src="2X2 ID_ILOIZA.png" alt="<?php echo e($name); ?>" class="profile-img">
             <div class="header-text">
-                <h1><?php echo $name; ?></h1>
-                <p><?php echo $title; ?></p>
-                <p><?php echo $location; ?></p>
+                <h1><?php echo e($name); ?></h1>
+                <p><?php echo e($title); ?></p>
+                <p><?php echo e($location); ?></p>
                 <div class="contact-info">
                     <div class="contact-item">
                         <span>📱</span>
-                        <span><?php echo $contact["Phone"]; ?></span>
+                        <span><?php echo e($contact["Phone"] ?? ''); ?></span>
                     </div>
                     <div class="contact-item">
-                        <span✉️</span>
-                        <a href="mailto:<?php echo $contact['Email']; ?>">
-                            <?php echo $contact["Email"]; ?>
-                        </a>
+                        <span>✉️</span>
+                        <?php $mailto = mailto_link($contact['Email'] ?? ''); ?>
+                        <a href="<?php echo $mailto['href']; ?>"><?php echo $mailto['text']; ?></a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 🔹 Logout Button -->
-        <a href="logout.php" class="logout-btn">Logout</a>
+        <!-- 🔹 Login/Logout Button (conditional) -->
+        <?php if (!empty($_SESSION['username'])): ?>
+            <a href="logout.php" class="logout-btn">Logout</a>
+        <?php else: ?>
+            <a href="login.php" class="login-btn">Login</a>
+        <?php endif; ?>
     </div>
 </header>
 
@@ -136,7 +158,8 @@ $contact = [
                 <h2>Professional Summary</h2>
             </div>
             <div class="about-content">
-                <p><?php echo $about; ?></p>
+                <!-- preserve line breaks from $about -->
+                <p><?php echo nl2br(e($about)); ?></p>
             </div>
         </div>
     </section>
@@ -151,10 +174,10 @@ $contact = [
                 <?php foreach($education as $level => $detail): ?>
                     <div class="timeline-item">
                         <div class="timeline-content">
-                            <h3><?php echo $level; ?> Education</h3>
-                            <p><?php echo $detail["school"]; ?></p>
+                            <h3><?php echo e($level); ?> Education</h3>
+                            <p><?php echo e($detail["school"] ?? ''); ?></p>
                             <?php if (!empty($detail["degree"])): ?>
-                                <p class="degree"><em><?php echo $detail["degree"]; ?></em></p>
+                                <p class="degree"><em><?php echo e($detail["degree"]); ?></em></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -172,15 +195,17 @@ $contact = [
             <div class="skills-container">
                 <?php foreach($skills as $type => $list): ?>
                     <div class="skill-category">
-                        <h3><?php echo $type; ?></h3>
+                        <h3><?php echo e($type); ?></h3>
                         <ul class="skill-list">
-                            <?php foreach($list as $label => $desc): ?>
-                                <?php if(is_string($label)): ?>
-                                    <li><strong><?php echo $label; ?></strong><?php echo $desc; ?></li>
-                                <?php else: ?>
-                                    <li><?php echo $desc; ?></li>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                            <?php if (is_assoc($list)): ?>
+                                <?php foreach($list as $label => $desc): ?>
+                                    <li><strong><?php echo e($label); ?></strong><?php echo e($desc); ?></li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <?php foreach($list as $desc): ?>
+                                    <li><?php echo e($desc); ?></li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 <?php endforeach; ?>
@@ -198,8 +223,8 @@ $contact = [
                 <?php foreach($projects as $project => $desc): ?>
                     <div class="project-card">
                         <div class="project-info">
-                            <h3><?php echo $project; ?></h3>
-                            <p><?php echo $desc; ?></p>
+                            <h3><?php echo e($project); ?></h3>
+                            <p><?php echo e($desc); ?></p>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -216,8 +241,8 @@ $contact = [
             <div class="certifications-list">
                 <?php foreach($certifications as $cert => $org): ?>
                     <div class="cert-item">
-                        <span class="cert-name"><?php echo $cert; ?></span>
-                        <span class="cert-org"><?php echo $org; ?></span>
+                        <span class="cert-name"><?php echo e($cert); ?></span>
+                        <span class="cert-org"><?php echo e($org); ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -233,8 +258,8 @@ $contact = [
             <div class="orgs-list">
                 <?php foreach($organizations as $org => $role): ?>
                     <div class="org-item">
-                        <span><?php echo $org; ?></span>
-                        <span><?php echo $role; ?></span>
+                        <span><?php echo e($org); ?></span>
+                        <span><?php echo e($role); ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -244,7 +269,7 @@ $contact = [
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2025 <?php echo $name; ?>. All rights reserved.</p>
+            <p>&copy; 2025 <?php echo e($name); ?>. All rights reserved.</p>
         </div>
     </footer>
 </body>
