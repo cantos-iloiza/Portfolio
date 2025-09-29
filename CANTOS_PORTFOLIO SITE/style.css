@@ -4,6 +4,7 @@
     --cream: #F5ECD5;
     --dark-text: #333333;
     --light-text: #666666;
+    --input-border: #ccc;
 }
 
 * {
@@ -455,4 +456,86 @@ footer {
         left: -10px;
         right: auto;
     }
+}
+
+/* Login */
+.login-body {
+    background: var(--light-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.login-container { 
+    width: 360px;
+    max-width: calc(100% - 40px);
+    padding: 28px; 
+    background: var(--cream); 
+    border-radius: 12px; 
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25); 
+}
+
+.login-container h2 { 
+    text-align: center; 
+    color: var(--dark-text);
+    margin: 0 0 6px 0;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.login-container label {
+    font-size: 0.95rem;
+    color: var(--dark-text);
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"],
+.login-container button {
+    width: 100%;
+    padding: 12px 14px;   
+    font-size: 1rem;
+    border-radius: 8px;
+    display: block;
+    min-height: 46px; 
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    border: 1px solid var(--input-border);
+    background: #fff;
+    outline: none;
+}
+
+.login-container input[type="text"]:focus,
+.login-container input[type="password"]:focus {
+    box-shadow: 0 0 0 4px rgba(164,180,101,0.12);
+    border-color: #bdb;
+}
+
+.login-container button { 
+    background: var(--dark-green);
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: 600;
+}
+
+.login-container button:hover { 
+    background: #4e5838; 
+}
+
+.login-container .error { 
+    color: red; 
+    text-align: center; 
+    margin-top: 6px; 
+}
+
+@media (max-width: 420px) {
+    .login-container { padding: 20px; }
 }
